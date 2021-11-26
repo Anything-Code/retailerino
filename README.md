@@ -1,4 +1,4 @@
-## Nexus + Prisma + Apollo Server Boilerplate
+# Nexus + Prisma + Apollo Server Boilerplate
 
 A simple starterkit for Nexus and Prisma GraphQL apis.
 

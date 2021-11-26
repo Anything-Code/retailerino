@@ -1,11 +1,12 @@
+import { rolePromises, userPromises } from './seeding/user';
 import { exit } from 'process';
-import { pc } from '../src/prisma-client';
-import { userPromises } from './seeding/user';
+import { pc } from '../src/context';
 
 async function main() {
-    const users = await Promise.all(userPromises.toArray());
+    Promise.all(rolePromises.toArray());
+    Promise.all(userPromises.toArray());
 
-    console.log('\nSeeding was successfull!');
+    console.info('\nSeeding was successfull!');
 }
 
 main()

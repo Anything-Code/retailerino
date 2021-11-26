@@ -3,9 +3,9 @@ import connectSqlite3 from 'connect-sqlite3';
 import express from 'express';
 import session from 'express-session';
 import { ApolloServer } from 'apollo-server-express';
-import { pc } from './prisma-client';
 import { schema } from './schema';
 import dotenv from 'dotenv';
+import { createContext } from './context';
 
 dotenv.config();
 
@@ -35,16 +35,7 @@ app.use(
 
 const apolloServer = new ApolloServer({
     schema,
-    context: ({ req, res }) => ({
-        req,
-        res,
-        prisma: pc,
-        playground: {
-            settings: {
-                'request.credentials': 'include',
-            },
-        },
-    }),
+    context: (ctx) => createContext(ctx),
 });
 
 async function startApolloServer(app: express.Application, apolloServer: ApolloServer) {
