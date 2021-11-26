@@ -1,5 +1,5 @@
 import { List } from 'immutable';
-import { mutationField, nonNull, objectType } from 'nexus';
+import { mutationField, nonNull, nullable, objectType } from 'nexus';
 import {
     User,
     Role,
@@ -95,6 +95,8 @@ export const orderItemObjectType = objectType(getBaseObjectType(OrderItem));
 //     },
 // });
 
+const allUserIncludes = { addresses: true, cartItems: true, orders: true, reviews: true, role: true };
+
 declare module 'express-session' {
     interface SessionData {
         authenticated: boolean;
@@ -103,10 +105,16 @@ declare module 'express-session' {
 }
 
 export const register = mutationField('register', {
-    type: 'User',
-    args: { name: nonNull('String'), email: nonNull('String'), password: nonNull('String') },
+    type: User.$name,
+    args: {
+        email: nonNull('String'),
+        password: nonNull('String'),
+        firstname: nonNull('String'),
+        lastname: nonNull('String'),
+        phoneNumber: nonNull('String'),
+    },
     description: 'Registers a new user.',
-    async resolve(_root, { email, password, firstname, lastname, phoneNumber, lastUserAgent }, { req, pc }: Context) {
+    async resolve(_root, { email, password, firstname, lastname, phoneNumber }, { req, pc }: Context) {
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
 
@@ -117,29 +125,27 @@ export const register = mutationField('register', {
                 firstname,
                 lastname,
                 phoneNumber,
-                lastUserAgent,
+                lastUserAgent: req.useragent?.source,
                 role: { connect: { id: 2 } },
             },
-            include: { addresses: true, cartItems: true, orders: true, reviews: true, role: true },
+            include: allUserIncludes,
         });
 
         req.session.authenticated = true;
         req.session.user = user;
-
-        console.log(req.session);
 
         return user;
     },
 });
 
 export const login = mutationField('login', {
-    type: 'User',
+    type: User.$name,
     args: { email: nonNull('String'), password: nonNull('String') },
     description: 'Logs a user in',
     async resolve(_root, { email, password }, { req, pc }: Context) {
         const user = await pc.user.findUnique({
             where: { email },
-            include: { addresses: true, cartItems: true, orders: true, reviews: true, role: true },
+            include: allUserIncludes,
         });
         if (user == null) {
             throw AuthenticationError;
@@ -156,58 +162,66 @@ export const login = mutationField('login', {
     },
 });
 
-// export const logout = mutationField('logout', {
-//     type: 'Boolean',
-//     shield: isAuthenticatedRuleType,
-//     resolve(_root, _args, { req, res }: Context) {
-//         res.clearCookie('qid');
+export const logout = mutationField('logout', {
+    type: 'Boolean',
+    shield: isAuthenticatedRuleType,
+    resolve(_root, _args, { req, res }: Context) {
+        res.clearCookie('qid');
 
-//         return true;
-//     },
-// });
+        return true;
+    },
+});
 
-// export const me = mutationField('me', {
-//     type: 'User',
-//     shield: isAuthenticatedRuleType,
-//     resolve(_root, _args, { req }: Context): any {
-//         return req.session.user;
-//     },
-// });
+export const me = mutationField('me', {
+    type: User.$name,
+    shield: isAuthenticatedRuleType,
+    resolve(_root, _args, { req }: Context): any {
+        return req.session.user;
+    },
+});
 
-// export const updateMyself = mutationField('updateMyself', {
-//     type: 'User',
-//     args: { name: nullable('String'), email: nullable('String'), password: nullable('String') },
-//     shield: isAuthenticatedRuleType,
-//     async resolve(_root, { name, email, password }, { req, pc }: Context) {
-//         const user = await pc.user.findFirst({ where: { id: req.session.user.id } });
-//         const updatedUser = await pc.user.update({
-//             where: {
-//                 id: req.session.user.id,
-//             },
-//             data: {
-//                 name: name ?? user!.name,
-//                 email: email ?? user!.email,
-//                 password: password ?? user!.password,
-//             },
-//         });
+export const updateMyself = mutationField('updateMyself', {
+    type: User.$name,
+    args: {
+        email: nonNull('String'),
+        password: nonNull('String'),
+        firstname: nonNull('String'),
+        lastname: nonNull('String'),
+        phonenumber: nonNull('String'),
+    },
+    shield: isAuthenticatedRuleType,
+    async resolve(_root, { email, password, firstname, lastname, phoneNumber }, { req, pc }: Context) {
+        const user = await pc.user.findFirst({ where: { cuid: req.session.user.cuid } });
+        const updatedUser = await pc.user.update({
+            where: {
+                cuid: req.session.user.cuid,
+            },
+            data: {
+                email: email ?? user!.email,
+                password: password ?? user!.password,
+                firstname: firstname ?? user!.firstname,
+                lastname: lastname ?? user!.lastname,
+                phoneNumber: phoneNumber ?? user!.phoneNumber,
+            },
+        });
 
-//         return updatedUser;
-//     },
-// });
+        return updatedUser;
+    },
+});
 
-// export const deleteMyself = mutationField('deleteMyself', {
-//     type: 'Boolean',
-//     args: { confirm: nonNull('Boolean') },
-//     shield: isAuthenticatedRuleType,
-//     async resolve(_root, { confirm }, { req, res, pc }: Context) {
-//         const deletedUser = await pc.user.delete({
-//             where: {
-//                 id: req.session.user.id,
-//             },
-//         });
+export const deleteMyself = mutationField('deleteMyself', {
+    type: 'Boolean',
+    args: { confirm: nonNull('Boolean') },
+    shield: isAuthenticatedRuleType,
+    async resolve(_root, { confirm }, { req, res, pc }: Context) {
+        const deletedUser = await pc.user.delete({
+            where: {
+                cuid: req.session.user.cuid,
+            },
+        });
 
-//         res.clearCookie('qid');
+        res.clearCookie('qid');
 
-//         return true;
-//     },
-// });
+        return true;
+    },
+});

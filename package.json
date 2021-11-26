@@ -25,9 +25,9 @@
         "dotenv": "^10.0.0",
         "express": "^4.17.1",
         "express-session": "^1.17.2",
+        "express-useragent": "^1.0.15",
         "faker": "^5.5.3",
         "graphql": "^15.5.0",
-        "graphql-shield": "^7.5.0",
         "immutable": "^4.0.0-rc.12",
         "nexus": "^1.0.0",
         "nexus-prisma": "^0.34.0",
@@ -37,6 +37,7 @@
     "devDependencies": {
         "@types/bcrypt": "^5.0.0",
         "@types/express-session": "^1.17.3",
+        "@types/express-useragent": "^1.0.1",
         "@types/faker": "^5.5.6",
         "@types/koa-router": "^7.4.2",
         "@types/node": "^16.10.2",

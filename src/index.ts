@@ -6,6 +6,7 @@ import { ApolloServer } from 'apollo-server-express';
 import { schema } from './schema';
 import dotenv from 'dotenv';
 import { createContext } from './context';
+import expressUseragent from 'express-useragent';
 
 dotenv.config();
 
@@ -14,6 +15,7 @@ const SQLiteStore = connectSqlite3(session);
 
 const app = express();
 
+app.use(expressUseragent.express());
 app.use(
     session({
         store: new SQLiteStore({
@@ -27,7 +29,7 @@ app.use(
         cookie: {
             sameSite: 'lax',
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
+            secure: false, // process.env.NODE_ENV === 'production',
             maxAge: 1000 * 60 * 60 * 24 * 7 * 365, // 7 years
         },
     })
