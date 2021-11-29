@@ -2,9 +2,8 @@ import { makeSchema } from 'nexus';
 import { allow, nexusShield } from 'nexus-shield';
 import { ForbiddenError } from 'apollo-server-errors';
 import NexusPrismaScalars from 'nexus-prisma/scalars';
-import * as types from './types';
-import { mutationField, nonNull, objectType } from 'nexus';
 import { join } from 'path';
+import * as types from './types';
 
 export const schema = makeSchema({
     types: { ...NexusPrismaScalars, ...types },
@@ -15,7 +14,8 @@ export const schema = makeSchema({
         }),
     ],
     outputs: {
-        typegen: join(process.cwd(), 'generated', 'typegen.d.ts'),
+        typegen: join(process.cwd(), 'node_modules', '@types', 'nexus-typegen', 'index.d.ts'),
+        // typegen: join(process.cwd(), 'generated', 'typegen.d.ts'),
         schema: join(process.cwd(), 'generated', 'schema.graphql'),
     },
     contextType: {

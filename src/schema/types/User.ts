@@ -1,4 +1,3 @@
-import { List } from 'immutable';
 import { mutationField, nonNull, nullable, objectType } from 'nexus';
 import {
     User,
@@ -19,9 +18,10 @@ import {
 } from 'nexus-prisma';
 import { ObjectDefinitionBlock } from 'nexus/dist/definitions/objectType';
 import { Context } from '../../context';
+import { AuthenticationError, ValidationError } from 'apollo-server-errors';
+import { isAdminRuleType, isAuthenticatedRuleType } from '../../rules';
+import { List } from 'immutable';
 import bcrypt from 'bcrypt';
-import { AuthenticationError } from 'apollo-server-errors';
-import { isAuthenticatedRuleType } from '../../rules';
 
 interface modelBaseType {
     $name: string;
@@ -99,7 +99,6 @@ const allUserIncludes = { addresses: true, cartItems: true, orders: true, review
 
 declare module 'express-session' {
     interface SessionData {
-        authenticated: boolean;
         user: any;
     }
 }
@@ -131,7 +130,6 @@ export const register = mutationField('register', {
             include: allUserIncludes,
         });
 
-        req.session.authenticated = true;
         req.session.user = user;
 
         return user;
@@ -155,7 +153,6 @@ export const login = mutationField('login', {
             throw AuthenticationError;
         }
 
-        req.session.authenticated = true;
         req.session.user = user;
 
         return user;
@@ -223,5 +220,28 @@ export const deleteMyself = mutationField('deleteMyself', {
         res.clearCookie('qid');
 
         return true;
+    },
+});
+
+export const changeRole = mutationField('changeRole', {
+    type: User.$name,
+    args: { user: nonNull('String'), role: nonNull('Int') },
+    shield: isAdminRuleType,
+    async resolve(_root, { user, role }: { user: string; role: number }, { pc, req }: Context) {
+        const currentUserIsAdmin = req.session.user.role.name === 'admin';
+        if (currentUserIsAdmin) {
+            throw `Don't go back to moke!`;
+        }
+
+        const updatedUser = await pc.user.update({
+            where: {
+                cuid: user,
+            },
+            data: {
+                role: { connect: { id: role } },
+            },
+        });
+
+        return updatedUser;
     },
 });

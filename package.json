@@ -7,15 +7,15 @@
     "description": "",
     "scripts": {
         "start": "node ./dist/build.js",
-        "dev": "yarn tsnd ./src/index.ts",
+        "dev": "nodemon ./src/index.ts",
         "build": "yarn build:prod",
         "generate": "prisma generate",
         "studio": "prisma studio",
         "push": "prisma db push",
         "reset": "prisma migrate reset",
         "seed": "ts-node ./prisma/seed.ts",
-        "build:dev": "webpack --mode=development --progress",
-        "build:prod": "webpack --mode=production --progress"
+        "build:dev": "webpack -w --progress --mode development",
+        "build:prod": "webpack --progress --mode production"
     },
     "dependencies": {
         "@prisma/client": "^3.5.0",
@@ -46,11 +46,10 @@
         "eslint-config-prettier": "^8.3.0",
         "eslint-plugin-prettier": "^4.0.0",
         "node-loader": "^2.0.0",
-        "nodemon": "^2.0.7",
+        "nodemon": "^2.0.15",
         "prettier": "^2.3.1",
         "ts-loader": "^9.2.3",
         "ts-node": "^10.0.0",
-        "ts-node-dev": "^1.1.8",
         "typescript": "^4.3.2",
         "webpack": "^5.38.1",
         "webpack-cli": "^4.7.2",
