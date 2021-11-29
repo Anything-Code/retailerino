@@ -1,4 +1,4 @@
-import { createRoles, createUsers } from './seeding/user';
+import { createRoles, createUsers } from './seeding/models';
 import { exit } from 'process';
 import { pc } from '../src/context';
 import { List, Stack } from 'immutable';
