@@ -6,15 +6,15 @@
     "main": "./dist/build.js",
     "description": "",
     "scripts": {
+        "build": "yarn build:prod",
         "start": "node ./dist/build.js",
         "dev": "nodemon ./src/index.ts",
-        "build": "yarn build:prod",
+        "seed": "ts-node ./prisma/seed.ts",
         "generate": "prisma generate",
         "studio": "prisma studio",
         "push": "prisma db push",
         "reset": "prisma migrate reset",
-        "seed": "ts-node ./prisma/seed.ts",
-        "build:dev": "webpack -w --progress --mode development",
+        "build:dev": "webpack --progress --mode development",
         "build:prod": "webpack --progress --mode production"
     },
     "dependencies": {
