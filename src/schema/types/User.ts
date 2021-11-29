@@ -4,7 +4,7 @@ import {
     Role,
     Address,
     CartItem,
-    Order,
+    OrderI,
     Review,
     InventoryGroup,
     InventoryItem,
@@ -18,10 +18,12 @@ import {
 } from 'nexus-prisma';
 import { ObjectDefinitionBlock } from 'nexus/dist/definitions/objectType';
 import { Context } from '../../context';
-import { AuthenticationError, ValidationError } from 'apollo-server-errors';
+import { AuthenticationError } from 'apollo-server-errors';
 import { isAdminRuleType, isAuthenticatedRuleType } from '../../rules';
 import { List } from 'immutable';
 import bcrypt from 'bcrypt';
+
+export const salt = async () => await bcrypt.genSalt(10);
 
 interface modelBaseType {
     $name: string;
@@ -63,7 +65,7 @@ export const userObjectType = objectType(getBaseObjectType(User, List(['password
 export const roleObjectType = objectType(getBaseObjectType(Role));
 export const cartObjectType = objectType(getBaseObjectType(CartItem));
 export const addressObjectType = objectType(getBaseObjectType(Address));
-export const orderObjectType = objectType(getBaseObjectType(Order));
+export const orderObjectType = objectType(getBaseObjectType(OrderI));
 export const reviewObjectType = objectType(getBaseObjectType(Review));
 export const inventoryGroupObjectType = objectType(getBaseObjectType(InventoryGroup));
 export const inventoryItemObjectType = objectType(getBaseObjectType(InventoryItem));
@@ -114,8 +116,7 @@ export const register = mutationField('register', {
     },
     description: 'Registers a new user.',
     async resolve(_root, { email, password, firstname, lastname, phoneNumber }, { req, pc }: Context) {
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(password, salt);
+        const hashedPassword = await bcrypt.hash(password, await salt());
 
         const user = await pc.user.create({
             data: {
