@@ -10,6 +10,7 @@
         "dev": "yarn tsnd ./src/index.ts",
         "prod": "yarn build:prod",
         "build": "yarn build:dev",
+        "seed": "yarn ts-node ./prisma/seed.ts",
         "generate": "prisma generate",
         "studio": "prisma studio",
         "push": "prisma db push",
