@@ -1,8 +1,7 @@
 import { List, Set } from 'immutable';
 import { pc } from '../../src/context';
-import { salt } from '../../src/schema/types/User';
 import { User, Role } from '@prisma/client';
-import { asPercent } from '../../src/helpers';
+import { asPercent, salt } from '../../src/util';
 import faker from 'faker';
 import bcrypt from 'bcrypt';
 
