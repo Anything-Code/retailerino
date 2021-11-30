@@ -1,5 +1,14 @@
-# Nexus + Prisma + Apollo Server Boilerplate
+# Backend for retailerino
 
-A simple starterkit for Nexus and Prisma GraphQL apis.
+This repo contains the setup and access to the db-structure as well as seeders for the backend of the student-project retailerino. The API uses the GraphQL query language and mainly uses the following packages to achieve that:
 
-Authentication middleware is in place using cookies and sessions
+- nexus
+- express
+- express-sesssion
+- apollo-server-express
+- primsa
+- nexus-prisma
+- nexus-shield
+
+Typescript and immutable.js are used to program in a declerative manner.
+Authentication uses express-session with http-only cookies.
