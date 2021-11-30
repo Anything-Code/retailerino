@@ -1,9 +1,23 @@
-import { ruleType } from 'nexus-shield';
+import { ruleType, or } from 'nexus-shield';
 
-export const isAuthenticatedRuleType = ruleType({
-    resolve: (_root, _args, { req }) => (req.session.authenticated ? true : false),
+export const isUserRuleType = ruleType<'Mutation', string>({
+    resolve: (_root, _args, { req }) => req.session.user.role.name === 'user',
 });
 
+export const isAdminRuleType = ruleType<'Mutation', string>({
+    resolve: (_root, _args, { req }) => req.session.user.role.name === 'admin',
+});
+
+export const isAuthenticatedRuleType = or(isUserRuleType, isAdminRuleType);
+
+export const isUser = {
+    shield: isUserRuleType,
+};
+
+export const isAdmin = {
+    shield: isAdminRuleType,
+};
+
 export const isAuthenticated = {
-    shield: isAuthenticatedRuleType,
+    shield: or(isUserRuleType, isAdminRuleType),
 };

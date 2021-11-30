@@ -2,13 +2,13 @@ datasource db {
     provider = "sqlite"
     url      = env("DATABASE_URL")
 }
-    
+
 generator client {
     provider = "prisma-client-js"
 }
 
 generator nexusPrisma {
-   provider = "nexus-prisma"
+    provider = "nexus-prisma"
 }
 
 /// A user
@@ -21,20 +21,20 @@ model User {
     password      String
     role          Role       @relation(fields: [roleId], references: [id])
     roleId        Int
-    lastUserAgent String
+    lastUserAgent String?
     lastLogin     DateTime   @default(now())
     createdAt     DateTime   @default(now())
     updatedAt     DateTime   @updatedAt
     verifiedAt    DateTime?
     cartItems     CartItem[]
     addresses     Address[]
-    orders        Order[]
+    orders        OrderI[]
     reviews       Review[]
 }
 
 model Role {
     id    Int    @id @default(autoincrement())
-    name  String
+    name  String @unique
     users User[]
 }
 
@@ -81,11 +81,12 @@ model InventoryGroupImage {
 }
 
 model InventoryGroupRelationship {
-    from             InventoryGroup @relation(name: "inventoryGroupIdFrom", fields: [inventoryGroupId], references: [id])
-    to               InventoryGroup @relation(name: "inventoryGroupIdTo", fields: [inventoryGroupId], references: [id])
-    inventoryGroupId Int
+    inventoryGroupFrom   InventoryGroup @relation(name: "inventoryGroupIdFrom", fields: [inventoryGroupIdFrom], references: [id])
+    inventoryGroupIdFrom Int
+    inventoryGroupTo     InventoryGroup @relation(name: "inventoryGroupIdTo", fields: [inventoryGroupIdTo], references: [id])
+    inventoryGroupIdTo   Int
 
-    @@id([inventoryGroupId])
+    @@id([inventoryGroupIdFrom, inventoryGroupIdTo])
 }
 
 model CartItem {
@@ -120,17 +121,17 @@ model Address {
     country String
     user    User    @relation(fields: [userUId], references: [cuid])
     userUId String
-    orders  Order[]
+    orders  OrderI[]
 }
 
 model DeliveryServiceProvider {
     id         Int      @id @default(autoincrement())
     name       String
     pickupTime DateTime
-    orders     Order[]
+    orders     OrderI[]
 }
 
-model Order {
+model OrderI {
     id                        Int                     @id @default(autoincrement())
     cofirmed                  Boolean
     user                      User                    @relation(fields: [userUId], references: [cuid])
@@ -146,7 +147,7 @@ model Order {
 model OrderItem {
     inventoryGroup   InventoryGroup @relation(fields: [inventoryGroupId], references: [id])
     inventoryGroupId Int
-    order            Order          @relation(fields: [orderId], references: [id])
+    order            OrderI          @relation(fields: [orderId], references: [id])
     orderId          Int
 
     @@id([inventoryGroupId, orderId])

@@ -10,6 +10,6 @@ This repo contains the setup and access to the db-structure as well as seeders f
 - nexus-prisma
 - nexus-shield
 
-Typescript and immutable.js are used to program in a declerative manner.
+Typescript and immutable.js are used to program in a declarative manner.
 
 Authentication uses express-session with http-only cookies.
