@@ -11,4 +11,5 @@ This repo contains the setup and access to the db-structure as well as seeders f
 - nexus-shield
 
 Typescript and immutable.js are used to program in a declerative manner.
+
 Authentication uses express-session with http-only cookies.
