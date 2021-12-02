@@ -1,13 +1,17 @@
-import { createRoles, createUsers } from './seeding/models';
+import {
+    rolePromises,
+    createStandaloneTables,
+    createAllUserAssociations,
+    createAllInventoryGroupAssociations,
+} from './seeding/tables';
 import { exit } from 'process';
 import { pc } from '../src/context';
-import { List, Stack } from 'immutable';
 
 async function main() {
-    const roles = await createRoles(List(['user', 'admin']));
-    const users = await createUsers(100);
+    await Promise.all(rolePromises.toArray());
+    await createStandaloneTables(0);
 
-    console.info('Seeding was successfull!');
+    //console.info('\nSeeding was successfull!');
 }
 
 main()
