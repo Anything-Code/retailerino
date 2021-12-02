@@ -92,24 +92,7 @@ export function makeABarCode() {
     // if we want to make it a real barcode we can ik this is not most essential funk
 }
 
-export function getNumFromQuery(result: String) {
-    let resultL: String = '';
-    let j: number = 0;
-    for (let i = 0; result.length > i; i++) {
-        if (result[i] == '0' || '1' || '2' || '3' || '4' || '5' || '6' || '7' || '8' || '9') {
-            console.info(result[i]);
-            resultL[j] == result[i];
-            j++;
-        }
-    }
-    return result.substr(14);
-}
-
 export function getAInventoryGroupId() {
-    /*let result: String = await pc.$queryRaw`SELECT COUNT(cuid) FROM User`;
-    console.info('im no array');
-    console.info(result.substr(14, 3));
-    return randomInt(Number(result.substr(14, 3))) + 1;*/
     return randomInt(99) + 1;
 }
 
@@ -153,7 +136,7 @@ async function reviewGenerator(userCuid: string) {
         data: {
             inventoryGroupId: await getAInventoryGroupId(),
             userUId: userCuid,
-            description: '',
+            description: faker.commerce.productDescription(),
             rating: randomInt(5),
         },
     });
@@ -164,7 +147,7 @@ async function addressGenerator(userCuid: string) {
         data: {
             street: faker.address.streetName(),
             city: faker.address.city(),
-            zip: 2, // no no================================================================================
+            zip: randomInt(60000) + 1000,
             country: faker.address.country(),
             userUId: userCuid,
         },
@@ -246,23 +229,3 @@ async function inventoryItemGenerator(inventoryGroupIdl: number, i: number) {
         },
     });
 }
-
-//==================================================================================
-//==========**               This is taking care of oders               **==========
-/*
-export async function createAlloderAssociations() {
-    const orderIdS: OrderI[] = await pc.$queryRaw`SELECT * FROM OrderI`;
-    let i = 0;
-    console.info('\n so it would be: ');
-    console.info(orderIdS.length);
-    orderIdS.forEach(async (orderIdl) => {
-        await pc.orderItem.create({
-            data: {
-                inventoryGroupId: await getAInventoryGroupId(),
-                orderId: Number(orderIdl.id),
-            },
-        });
-    });
-    console.info('order setup was successful');
-}*/
-//yarn seed, reset, push
