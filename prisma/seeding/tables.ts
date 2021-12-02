@@ -220,7 +220,7 @@ async function inventoryGroupImageGenerator(inventoryGroupIdl: number, i: number
     await pc.inventoryGroupImage.create({
         data: {
             inventoryGroupId: inventoryGroupIdl,
-            imageId: i,
+            imageId: randomInt(99) + 1,
         },
     });
 }
