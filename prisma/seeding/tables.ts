@@ -1,16 +1,15 @@
 import { List, Range } from 'immutable';
-import faker, { datatype, date, fake } from 'faker';
+import faker, { datatype, date, fake, random, system } from 'faker';
 import { pc } from '../../src/context';
 import { randomInt } from 'crypto';
 import { User } from '@prisma/client';
 import { InventoryGroup } from '@prisma/client';
-import { DateTime } from 'nexus-prisma/scalars';
 import { OrderI } from 'nexus-prisma/*';
 
 const amountOfCategories = 35;
 
 export function composeADate() {
-    return new Date();
+    return new Date(String(String(randomInt(28))) + faker.date.month()); //'20-JUN-1990 08:03:00');
 }
 
 export const rolePromises = List([
@@ -75,11 +74,11 @@ export async function createStandaloneTables(i: number) {
             },
         });
 
-        createStandaloneTables(++i);
+        await createStandaloneTables(++i);
     } else {
         await createAllUserAssociations();
         await createAllInventoryGroupAssociations();
-        await createAlloderAssociations();
+        //await createAlloderAssociations();
         console.info('\nSeeding was successfull!');
         return;
     }
@@ -93,20 +92,37 @@ export function makeABarCode() {
     // if we want to make it a real barcode we can ik this is not most essential funk
 }
 
+export function getNumFromQuery(result: String) {
+    let resultL: String = '';
+    let j: number = 0;
+    for (let i = 0; result.length > i; i++) {
+        if (result[i] == '0' || '1' || '2' || '3' || '4' || '5' || '6' || '7' || '8' || '9') {
+            console.info(result[i]);
+            resultL[j] == result[i];
+            j++;
+        }
+    }
+    return result.substr(14);
+}
+
 export function getAInventoryGroupId() {
-    return 2;
+    /*let result: String = await pc.$queryRaw`SELECT COUNT(cuid) FROM User`;
+    console.info('im no array');
+    console.info(result.substr(14, 3));
+    return randomInt(Number(result.substr(14, 3))) + 1;*/
+    return randomInt(99) + 1;
 }
 
 export function getAAdressId() {
-    return 2;
+    return randomInt(50) + 1;
 }
 
 export function getDeliveryServiceProvicerId() {
-    return 2;
+    return randomInt(5) + 1;
 }
 
 export function getCategoryId() {
-    return 2;
+    return randomInt(amountOfCategories) + 1;
 }
 
 //==================================================================================
@@ -126,7 +142,7 @@ export async function createAllUserAssociations() {
 async function cartItemGenerator(userCuid: string) {
     await pc.cartItem.create({
         data: {
-            inventoryGroupId: getAInventoryGroupId(),
+            inventoryGroupId: await getAInventoryGroupId(),
             userUId: userCuid,
         },
     });
@@ -135,7 +151,7 @@ async function cartItemGenerator(userCuid: string) {
 async function reviewGenerator(userCuid: string) {
     await pc.review.create({
         data: {
-            inventoryGroupId: getAInventoryGroupId(),
+            inventoryGroupId: await getAInventoryGroupId(),
             userUId: userCuid,
             description: '',
             rating: randomInt(5),
@@ -156,7 +172,7 @@ async function addressGenerator(userCuid: string) {
 }
 
 async function orderGenerator(userCuid: string) {
-    await pc.orderI.create({
+    const orderIdl = await pc.orderI.create({
         data: {
             cofirmed: true,
             userUId: userCuid,
@@ -164,6 +180,15 @@ async function orderGenerator(userCuid: string) {
             deliveryServiceProvicerId: getDeliveryServiceProvicerId(),
         },
     });
+
+    //for (let i = randomInt(3) + 1; i > 0; i--) { We have unqie here but why i dont get
+    await pc.orderItem.create({
+        data: {
+            inventoryGroupId: await getAInventoryGroupId(),
+            orderId: Number(orderIdl.id),
+        },
+    });
+    //}
 }
 
 //==================================================================================
@@ -204,7 +229,7 @@ async function inventoryGroupRelationshipGenerator(inventoryGroupIdl: number) {
     await pc.inventoryGroupRelationship.create({
         data: {
             inventoryGroupIdFrom: inventoryGroupIdl,
-            inventoryGroupIdTo: getAInventoryGroupId(),
+            inventoryGroupIdTo: await getAInventoryGroupId(),
         },
     });
 }
@@ -224,18 +249,20 @@ async function inventoryItemGenerator(inventoryGroupIdl: number, i: number) {
 
 //==================================================================================
 //==========**               This is taking care of oders               **==========
-
+/*
 export async function createAlloderAssociations() {
     const orderIdS: OrderI[] = await pc.$queryRaw`SELECT * FROM OrderI`;
     let i = 0;
+    console.info('\n so it would be: ');
+    console.info(orderIdS.length);
     orderIdS.forEach(async (orderIdl) => {
         await pc.orderItem.create({
             data: {
-                inventoryGroupId: getAInventoryGroupId(),
+                inventoryGroupId: await getAInventoryGroupId(),
                 orderId: Number(orderIdl.id),
             },
         });
     });
     console.info('order setup was successful');
-}
+}*/
 //yarn seed, reset, push
