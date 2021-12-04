@@ -4,7 +4,7 @@ import { Context } from '../../context';
 import { AuthenticationError } from 'apollo-server-errors';
 import { isAdminRuleType, isAuthenticatedRuleType } from '../../rules';
 import bcrypt from 'bcrypt';
-import { salt } from '../../util';
+import { salt, usePromise } from '../../util';
 
 // export const Query = queryType({
 //     definition(t) {
@@ -71,10 +71,12 @@ export const login = mutationField('login', {
     args: { email: nonNull('String'), password: nonNull('String') },
     description: 'Logs a user in',
     async resolve(_root, { email, password }, { req, pc }: Context) {
-        const user = await pc.user.findUnique({
-            where: { email },
-            include: allUserIncludes,
-        });
+        const [user, err] = await usePromise(
+            pc.user.findUnique({
+                where: { email },
+                include: allUserIncludes,
+            })
+        );
         if (user == null) {
             throw AuthenticationError;
         }

@@ -117,7 +117,7 @@ model Address {
     id      Int     @id @default(autoincrement())
     street  String
     city    String
-    zip     BigInt
+    zip     String
     country String
     user    User    @relation(fields: [userUId], references: [cuid])
     userUId String

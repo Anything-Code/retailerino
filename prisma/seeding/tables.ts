@@ -1,10 +1,11 @@
-import { List, Range } from 'immutable';
-import faker, { datatype, date, fake, random, system } from 'faker';
+import { List } from 'immutable';
+import faker from 'faker';
 import { pc } from '../../src/context';
 import { randomInt } from 'crypto';
 import { User } from '@prisma/client';
 import { InventoryGroup } from '@prisma/client';
-import { OrderI } from 'nexus-prisma/*';
+import { salt } from '../../src/util';
+import bcrypt from 'bcrypt';
 
 const amountOfCategories = 35;
 
@@ -36,7 +37,7 @@ export async function createStandaloneTables(i: number) {
         await pc.user.create({
             data: {
                 email: faker.internet.email(),
-                password: faker.internet.password(),
+                password: await bcrypt.hash('secret', await salt()),
                 firstname: faker.name.firstName(),
                 lastname: faker.name.lastName(),
                 lastUserAgent: faker.internet.userAgent(),
@@ -147,7 +148,7 @@ async function addressGenerator(userCuid: string) {
         data: {
             street: faker.address.streetName(),
             city: faker.address.city(),
-            zip: randomInt(60000) + 1000,
+            zip: faker.address.zipCode(),
             country: faker.address.country(),
             userUId: userCuid,
         },
