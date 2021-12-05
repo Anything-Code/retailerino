@@ -44,8 +44,8 @@ model InventoryItem {
   inventoryGroup   InventoryGroup @relation(fields: [inventoryGroupId], references: [id])
   inventoryGroupId Int
   arrivedAt        DateTime
-  shippedAt        DateTime
-  soldAt           DateTime
+  shippedAt        DateTime?
+  soldAt           DateTime?
 }
 
 model InventoryGroup {

@@ -1,4 +1,4 @@
-import { nonNull, queryType } from 'nexus';
+import { nonNull } from 'nexus';
 import {
     User,
     Role,
@@ -16,12 +16,12 @@ import {
     Category,
     OrderItem,
 } from 'nexus-prisma';
-import { extendType, list, NexusNonNullableTypes, ObjectDefinitionBlock } from 'nexus/dist/core';
+import { extendType, NexusNonNullableTypes, ObjectDefinitionBlock } from 'nexus/dist/core';
 import { Context, pc } from '../../context';
 
 const lcFirstChar = (s: string) => s.charAt(0).toLowerCase() + s.slice(1);
 
-const allReadQueries = (model: any, client: any, pk: string, pkType: NexusNonNullableTypes = 'Int'): any => ({
+const allQueries = (model: any, client: any, pk: string = 'id', pkType: NexusNonNullableTypes = 'Int'): any => ({
     type: 'Query',
     definition(t: ObjectDefinitionBlock<'Query'>) {
         t.list.field(lcFirstChar(model.$name) + 's', {
@@ -38,26 +38,24 @@ const allReadQueries = (model: any, client: any, pk: string, pkType: NexusNonNul
     },
 });
 
-export const userQueryType = extendType(allReadQueries(User, pc.user, 'cuid', 'String'));
-export const roleQueryType = extendType(allReadQueries(Role, pc.role, 'id'));
-export const addressQueryType = extendType(allReadQueries(Address, pc.address, 'id'));
-export const cartItemQueryType = extendType(allReadQueries(CartItem, pc.cartItem, 'id'));
-export const orderIQueryType = extendType(allReadQueries(OrderI, pc.orderI, 'id'));
-export const reviewQueryType = extendType(allReadQueries(Review, pc.review, 'id'));
-export const inventoryGroupQueryType = extendType(allReadQueries(InventoryGroup, pc.inventoryGroup, 'id'));
-export const inventoryItemQueryType = extendType(allReadQueries(InventoryItem, pc.inventoryItem, 'id'));
+export const userQueryType = extendType(allQueries(User, pc.user, 'cuid', 'String'));
+export const roleQueryType = extendType(allQueries(Role, pc.role));
+export const addressQueryType = extendType(allQueries(Address, pc.address));
+export const cartItemQueryType = extendType(allQueries(CartItem, pc.cartItem));
+export const orderIQueryType = extendType(allQueries(OrderI, pc.orderI));
+export const reviewQueryType = extendType(allQueries(Review, pc.review));
+export const inventoryGroupQueryType = extendType(allQueries(InventoryGroup, pc.inventoryGroup));
+export const inventoryItemQueryType = extendType(allQueries(InventoryItem, pc.inventoryItem));
 export const inventoryGroupRelationshipQueryType = extendType(
-    allReadQueries(InventoryGroupRelationship, pc.inventoryGroupRelationship, 'id')
+    allQueries(InventoryGroupRelationship, pc.inventoryGroupRelationship)
 );
-export const inventoryGroupImageQueryType = extendType(
-    allReadQueries(InventoryGroupImage, pc.inventoryGroupImage, 'id')
-);
+export const inventoryGroupImageQueryType = extendType(allQueries(InventoryGroupImage, pc.inventoryGroupImage));
 export const deliveryServiceProviderQueryType = extendType(
-    allReadQueries(DeliveryServiceProvider, pc.deliveryServiceProvider, 'id')
+    allQueries(DeliveryServiceProvider, pc.deliveryServiceProvider)
 );
 export const inventoryGroupCategoryQueryType = extendType(
-    allReadQueries(InventoryGroupCategory, pc.inventoryGroupCategory, 'id')
+    allQueries(InventoryGroupCategory, pc.inventoryGroupCategory)
 );
-export const imageQueryType = extendType(allReadQueries(Image, pc.image, 'id'));
-export const categoryQueryType = extendType(allReadQueries(Category, pc.category, 'id'));
-export const orderItemQueryType = extendType(allReadQueries(OrderItem, pc.orderItem, 'id'));
+export const imageQueryType = extendType(allQueries(Image, pc.image));
+export const categoryQueryType = extendType(allQueries(Category, pc.category));
+export const orderItemQueryType = extendType(allQueries(OrderItem, pc.orderItem));

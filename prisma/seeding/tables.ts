@@ -98,7 +98,7 @@ export function getAInventoryGroupId() {
 }
 
 export function getAAdressId() {
-    return randomInt(50) + 1;
+    return randomInt(49) + 1;
 }
 
 export function getDeliveryServiceProvicerId() {
@@ -160,7 +160,7 @@ async function orderGenerator(userCuid: string) {
         data: {
             cofirmed: true,
             userUId: userCuid,
-            addressId: getAAdressId(),
+            addressId: 2, // getAAdressId(),
             deliveryServiceProvicerId: getDeliveryServiceProvicerId(),
         },
     });
@@ -225,8 +225,6 @@ async function inventoryItemGenerator(inventoryGroupIdl: number, i: number) {
             note: faker.commerce.productDescription(),
             inventoryGroupId: inventoryGroupIdl,
             arrivedAt: composeADate(),
-            shippedAt: composeADate(),
-            soldAt: composeADate(),
         },
     });
 }
