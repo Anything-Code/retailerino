@@ -1,7 +1,7 @@
 import { ruleType, or } from 'nexus-shield';
 
 export const isUserRuleType = ruleType<'Mutation', string>({
-    resolve: (_root, _args, { req }) => req.session.user.role.name === 'user',
+    resolve: (_root, _args, { req }) => req.session.user.role.name === 'customer',
 });
 
 export const isAdminRuleType = ruleType<'Mutation', string>({
