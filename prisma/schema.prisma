@@ -1,164 +1,165 @@
 datasource db {
-    provider = "sqlite"
-    url      = env("DATABASE_URL")
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
 }
 
 generator client {
-    provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 generator nexusPrisma {
-    provider = "nexus-prisma"
+  provider = "nexus-prisma"
 }
 
 /// A user
 model User {
-    cuid          String     @id @default(cuid())
-    firstname     String
-    lastname      String
-    phoneNumber   String
-    email         String     @unique
-    password      String
-    role          Role       @relation(fields: [roleId], references: [id])
-    roleId        Int
-    lastUserAgent String?
-    lastLogin     DateTime   @default(now())
-    createdAt     DateTime   @default(now())
-    updatedAt     DateTime   @updatedAt
-    verifiedAt    DateTime?
-    cartItems     CartItem[]
-    addresses     Address[]
-    orders        OrderI[]
-    reviews       Review[]
+  cuid          String     @id @default(cuid())
+  firstname     String
+  lastname      String
+  phoneNumber   String
+  email         String     @unique
+  password      String
+  role          Role       @relation(fields: [roleId], references: [id])
+  roleId        Int
+  lastUserAgent String?
+  lastLogin     DateTime   @default(now())
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  verifiedAt    DateTime?
+  cartItems     CartItem[]
+  addresses     Address[]
+  orders        OrderI[]
+  reviews       Review[]
 }
 
 model Role {
-    id    Int    @id @default(autoincrement())
-    name  String @unique
-    users User[]
+  id    Int    @id @default(autoincrement())
+  name  String @unique
+  users User[]
 }
 
 model InventoryItem {
-    uBarcode         Int            @id
-    note             String
-    inventoryGroup   InventoryGroup @relation(fields: [inventoryGroupId], references: [id])
-    inventoryGroupId Int
-    arrivedAt        DateTime
-    shippedAt        DateTime
-    soldAt           DateTime
+  uBarcode         Int            @id
+  note             String
+  inventoryGroup   InventoryGroup @relation(fields: [inventoryGroupId], references: [id])
+  inventoryGroupId Int
+  arrivedAt        DateTime
+  shippedAt        DateTime
+  soldAt           DateTime
 }
 
 model InventoryGroup {
-    id                       Int                          @id @default(autoincrement())
-    itemName                 String
-    price                    Float
-    amount                   Int
-    displayAmount            Int
-    inventoryItems           InventoryItem[]
-    updatedAt                DateTime                     @updatedAt
-    images                   InventoryGroupImage[]
-    inventoryGroupFroms      InventoryGroupRelationship[] @relation("inventoryGroupIdFrom")
-    inventoryGroupTos        InventoryGroupRelationship[] @relation("inventoryGroupIdTo")
-    cartItems                CartItem[]
-    inventoryGroupCategories InventoryGroupCategory[]
-    orderItems               OrderItem[]
-    reviews                  Review[]
+  id                       Int                          @id @default(autoincrement())
+  itemName                 String
+  price                    Float
+  amount                   Int
+  featured                 Boolean @default(false)
+  displayAmount            Int
+  inventoryItems           InventoryItem[]
+  updatedAt                DateTime                     @updatedAt
+  images                   InventoryGroupImage[]
+  inventoryGroupFroms      InventoryGroupRelationship[] @relation("inventoryGroupIdFrom")
+  inventoryGroupTos        InventoryGroupRelationship[] @relation("inventoryGroupIdTo")
+  cartItems                CartItem[]
+  inventoryGroupCategories InventoryGroupCategory[]
+  orderItems               OrderItem[]
+  reviews                  Review[]
 }
 
 model Image {
-    id              Int                   @id @default(autoincrement())
-    url             String                @unique
-    inventoryGroups InventoryGroupImage[]
+  id              Int                   @id @default(autoincrement())
+  url             String                @unique
+  inventoryGroups InventoryGroupImage[]
 }
 
 model InventoryGroupImage {
-    inventoryGroup   InventoryGroup @relation(fields: [inventoryGroupId], references: [id])
-    inventoryGroupId Int
-    image            Image          @relation(fields: [imageId], references: [id])
-    imageId          Int
+  inventoryGroup   InventoryGroup @relation(fields: [inventoryGroupId], references: [id])
+  inventoryGroupId Int
+  image            Image          @relation(fields: [imageId], references: [id])
+  imageId          Int
 
-    @@id([inventoryGroupId, imageId])
+  @@id([inventoryGroupId, imageId])
 }
 
 model InventoryGroupRelationship {
-    inventoryGroupFrom   InventoryGroup @relation(name: "inventoryGroupIdFrom", fields: [inventoryGroupIdFrom], references: [id])
-    inventoryGroupIdFrom Int
-    inventoryGroupTo     InventoryGroup @relation(name: "inventoryGroupIdTo", fields: [inventoryGroupIdTo], references: [id])
-    inventoryGroupIdTo   Int
+  inventoryGroupFrom   InventoryGroup @relation(name: "inventoryGroupIdFrom", fields: [inventoryGroupIdFrom], references: [id])
+  inventoryGroupIdFrom Int
+  inventoryGroupTo     InventoryGroup @relation(name: "inventoryGroupIdTo", fields: [inventoryGroupIdTo], references: [id])
+  inventoryGroupIdTo   Int
 
-    @@id([inventoryGroupIdFrom, inventoryGroupIdTo])
+  @@id([inventoryGroupIdFrom, inventoryGroupIdTo])
 }
 
 model CartItem {
-    inventoryGroup   InventoryGroup @relation(fields: [inventoryGroupId], references: [id])
-    inventoryGroupId Int
-    user             User           @relation(fields: [userUId], references: [cuid])
-    userUId          String
+  inventoryGroup   InventoryGroup @relation(fields: [inventoryGroupId], references: [id])
+  inventoryGroupId Int
+  user             User           @relation(fields: [userUId], references: [cuid])
+  userUId          String
 
-    @@id([inventoryGroupId, userUId])
+  @@id([inventoryGroupId, userUId])
 }
 
 model Category {
-    id                       Int                      @id @default(autoincrement())
-    name                     String
-    inventoryGroupCategories InventoryGroupCategory[]
+  id                       Int                      @id @default(autoincrement())
+  name                     String
+  inventoryGroupCategories InventoryGroupCategory[]
 }
 
 model InventoryGroupCategory {
-    inventoryGroup   InventoryGroup @relation(fields: [inventoryGroupId], references: [id])
-    inventoryGroupId Int
-    category         Category       @relation(fields: [categoryId], references: [id])
-    categoryId       Int
+  inventoryGroup   InventoryGroup @relation(fields: [inventoryGroupId], references: [id])
+  inventoryGroupId Int
+  category         Category       @relation(fields: [categoryId], references: [id])
+  categoryId       Int
 
-    @@id([inventoryGroupId, categoryId])
+  @@id([inventoryGroupId, categoryId])
 }
 
 model Address {
-    id      Int     @id @default(autoincrement())
-    street  String
-    city    String
-    zip     String
-    country String
-    user    User    @relation(fields: [userUId], references: [cuid])
-    userUId String
-    orders  OrderI[]
+  id      Int      @id @default(autoincrement())
+  street  String
+  city    String
+  zip     String
+  country String
+  user    User     @relation(fields: [userUId], references: [cuid])
+  userUId String
+  orders  OrderI[]
 }
 
 model DeliveryServiceProvider {
-    id         Int      @id @default(autoincrement())
-    name       String
-    pickupTime DateTime
-    orders     OrderI[]
+  id         Int      @id @default(autoincrement())
+  name       String
+  pickupTime DateTime
+  orders     OrderI[]
 }
 
 model OrderI {
-    id                        Int                     @id @default(autoincrement())
-    cofirmed                  Boolean
-    user                      User                    @relation(fields: [userUId], references: [cuid])
-    userUId                   String
-    address                   Address                 @relation(fields: [addressId], references: [id])
-    addressId                 Int
-    deliveryServiceProvicer   DeliveryServiceProvider @relation(fields: [deliveryServiceProvicerId], references: [id])
-    deliveryServiceProvicerId Int
-    createdAt                 DateTime                @default(now())
-    orderItems                OrderItem[]
+  id                        Int                     @id @default(autoincrement())
+  cofirmed                  Boolean
+  user                      User                    @relation(fields: [userUId], references: [cuid])
+  userUId                   String
+  address                   Address                 @relation(fields: [addressId], references: [id])
+  addressId                 Int
+  deliveryServiceProvicer   DeliveryServiceProvider @relation(fields: [deliveryServiceProvicerId], references: [id])
+  deliveryServiceProvicerId Int
+  createdAt                 DateTime                @default(now())
+  orderItems                OrderItem[]
 }
 
 model OrderItem {
-    inventoryGroup   InventoryGroup @relation(fields: [inventoryGroupId], references: [id])
-    inventoryGroupId Int
-    order            OrderI          @relation(fields: [orderId], references: [id])
-    orderId          Int
+  inventoryGroup   InventoryGroup @relation(fields: [inventoryGroupId], references: [id])
+  inventoryGroupId Int
+  order            OrderI         @relation(fields: [orderId], references: [id])
+  orderId          Int
 
-    @@id([inventoryGroupId, orderId])
+  @@id([inventoryGroupId, orderId])
 }
 
 model Review {
-    id               Int            @id @default(autoincrement())
-    inventoryGroup   InventoryGroup @relation(fields: [inventoryGroupId], references: [id])
-    inventoryGroupId Int
-    user             User           @relation(fields: [userUId], references: [cuid])
-    userUId          String
-    description      String
-    rating           Int
+  id               Int            @id @default(autoincrement())
+  inventoryGroup   InventoryGroup @relation(fields: [inventoryGroupId], references: [id])
+  inventoryGroupId Int
+  user             User           @relation(fields: [userUId], references: [cuid])
+  userUId          String
+  description      String
+  rating           Int
 }

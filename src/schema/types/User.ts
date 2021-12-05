@@ -105,7 +105,6 @@ export const me = mutationField('me', {
     type: User.$name,
     shield: isAuthenticatedRuleType,
     resolve(_root, _args, { req }: Context): any {
-        console.log(req.session.user);
         return req.session.user;
     },
 });
