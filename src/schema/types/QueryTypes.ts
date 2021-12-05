@@ -16,7 +16,7 @@ import {
     Category,
     OrderItem,
 } from 'nexus-prisma';
-import { extendType, NexusNonNullableTypes, ObjectDefinitionBlock } from 'nexus/dist/core';
+import { extendType, list, NexusNonNullableTypes, ObjectDefinitionBlock } from 'nexus/dist/core';
 import { Context, pc } from '../../context';
 
 const lcFirstChar = (s: string) => s.charAt(0).toLowerCase() + s.slice(1);
@@ -24,10 +24,9 @@ const lcFirstChar = (s: string) => s.charAt(0).toLowerCase() + s.slice(1);
 const allReadQueries = (model: any, client: any, pk: string, pkType: NexusNonNullableTypes = 'Int'): any => ({
     type: 'Query',
     definition(t: ObjectDefinitionBlock<'Query'>) {
-        t.field(lcFirstChar(model.$name) + 's', {
+        t.list.field(lcFirstChar(model.$name) + 's', {
             type: model.$name,
             async resolve(_parent, _args, _ctx: Context) {
-                console.log(_parent);
                 return await client.findMany();
             },
         });
