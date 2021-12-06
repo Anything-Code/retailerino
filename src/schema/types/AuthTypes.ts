@@ -3,7 +3,7 @@ import { Context } from '../../context';
 import { AuthenticationError } from 'apollo-server-errors';
 import { isAdminRuleType, isAuthenticatedRuleType } from '../../rules';
 import bcrypt from 'bcrypt';
-import { salt, usePromise } from '../../util';
+import { salt, usePromise, withoutBearer } from '../../util';
 import { sign, decode, JwtPayload } from 'jsonwebtoken';
 import { User as UserModel } from '@prisma/client';
 import { User } from 'nexus-prisma';
@@ -81,7 +81,7 @@ export const me = mutationField('me', {
     type: User.$name,
     shield: isAuthenticatedRuleType,
     resolve(_root, _args, { req, pc }): any {
-        const authToken = req.headers.authorization;
+        const authToken = withoutBearer(req.headers.authorization!);
         const payload: JwtPayload = decode(authToken!) as JwtPayload;
 
         return pc.user.findUnique({ where: { cuid: payload.user.cuid } });
@@ -99,7 +99,7 @@ export const updateMyself = mutationField('updateMyself', {
     },
     shield: isAuthenticatedRuleType,
     async resolve(_root, { email, password, firstname, lastname, phoneNumber }, { req, pc }: Context) {
-        const authToken = req.headers.authorization;
+        const authToken = withoutBearer(req.headers.authorization!);
         const payload: JwtPayload = decode(authToken!) as JwtPayload;
 
         const user = await pc.user.findUnique({ where: { cuid: payload.user.cuid } });
@@ -125,7 +125,7 @@ export const deleteMyself = mutationField('deleteMyself', {
     args: { confirm: nonNull('Boolean') },
     shield: isAuthenticatedRuleType,
     async resolve(_root, { confirm }, { req, res, pc }: Context) {
-        const authToken = req.headers.authorization;
+        const authToken = withoutBearer(req.headers.authorization!);
         const payload: JwtPayload = decode(authToken!) as JwtPayload;
 
         const deletedUser = await pc.user.delete({
@@ -143,7 +143,7 @@ export const changeRole = mutationField('changeRole', {
     args: { userCuid: nonNull('String'), role: nonNull('Int') },
     shield: isAdminRuleType,
     async resolve(_root, { userCuid, role }: { userCuid: string; role: number }, { pc, req }: Context) {
-        const authToken = req.headers.authorization;
+        const authToken = withoutBearer(req.headers.authorization!);
         const payload: JWTPayload = decode(authToken!) as JWTPayload;
 
         if (payload.user.cuid === userCuid) {

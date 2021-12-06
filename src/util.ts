@@ -11,3 +11,4 @@ export async function usePromise<T>(promise: Promise<any>): Promise<[res: Maybe<
         return [null, err];
     }
 }
+export const withoutBearer = (authToken: string) => authToken.replace('Bearer ', '');

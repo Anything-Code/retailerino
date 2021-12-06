@@ -2,11 +2,14 @@ import { ruleType, or } from 'nexus-shield';
 import { verify } from 'jsonwebtoken';
 import { AuthenticationError } from 'apollo-server-errors';
 import { JWTPayload } from './types';
+import { withoutBearer } from './util';
 
 export const isUserRuleType = ruleType<'Mutation', string>({
     async resolve(_root, _args, { req, pc }) {
-        const authToken = req.headers.authorization;
-        if (!authToken) throw AuthenticationError;
+        const rawToken = req.headers.authorization;
+        if (!rawToken) throw AuthenticationError;
+
+        const authToken = withoutBearer(rawToken);
 
         try {
             const payload: JWTPayload = verify(authToken, process.env.AUTH_SECRET!) as JWTPayload;
@@ -25,8 +28,10 @@ export const isUserRuleType = ruleType<'Mutation', string>({
 
 export const isAdminRuleType = ruleType<'Mutation', string>({
     async resolve(_root, _args, { req, pc }) {
-        const authToken = req.headers.authorization;
-        if (!authToken) throw AuthenticationError;
+        const rawToken = req.headers.authorization;
+        if (!rawToken) throw AuthenticationError;
+
+        const authToken = withoutBearer(rawToken);
 
         try {
             const payload: JWTPayload = verify(authToken, process.env.AUTH_SECRET!) as JWTPayload;
