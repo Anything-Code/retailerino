@@ -130,6 +130,44 @@ export const addressMutationType = extendType({
     },
 });
 
+export const cartItemMutationType = extendType({
+    type: 'Mutation',
+    definition(t) {
+        t.field('createCartItem', {
+            type: 'CartItem',
+            shield: isAdminRuleType,
+            args: {
+                userUId: nonNull('String'),
+                inventoryGroupId: nonNull('Int'),
+                amount: nonNull('Int'),
+            },
+            resolve: async (_parent, { userUId, inventoryGroupId, amount }: any, { pc }) =>
+                await pc.cartItem.create({ data: { userUId, inventoryGroupId, amount } }),
+        });
+        t.field('decrementCartItem', {
+            type: 'CartItem',
+            shield: isAdminRuleType,
+            args: { inventoryGroupId: nonNull('Int'), userUId: nonNull('Int') },
+            resolve: async (_parent, { inventoryGroupId, userUId }: any, { pc }) => {
+                const cartItem = await pc.cartItem.findUnique({
+                    where: { inventoryGroupId_userUId: { inventoryGroupId, userUId } },
+                });
+
+                if (cartItem == null) throw 'There is no such thing...';
+
+                if (cartItem.amount === 1)
+                    return await pc.cartItem.delete({
+                        where: { inventoryGroupId_userUId: { inventoryGroupId, userUId } },
+                    });
+
+                return await pc.cartItem.update({
+                    data: { amount: --cartItem.amount },
+                    where: { inventoryGroupId_userUId: { inventoryGroupId, userUId } },
+                });
+            },
+        });
+    },
+});
 // export const cartItemQueryType = extendType(allMutations(CartItem, pc.cartItem, 'id'));
 // export const orderIQueryType = extendType(allMutations(OrderI, pc.orderI, 'id'));
 // export const reviewQueryType = extendType(allMutations(Review, pc.review, 'id'));

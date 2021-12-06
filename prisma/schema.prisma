@@ -95,6 +95,7 @@ model CartItem {
   inventoryGroupId Int
   user             User           @relation(fields: [userUId], references: [cuid])
   userUId          String
+  amount          Int
 
   @@id([inventoryGroupId, userUId])
 }

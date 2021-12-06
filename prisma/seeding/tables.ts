@@ -128,6 +128,7 @@ async function cartItemGenerator(userCuid: string) {
         data: {
             inventoryGroupId: await getAInventoryGroupId(),
             userUId: userCuid,
+            amount: 1,
         },
     });
 }
