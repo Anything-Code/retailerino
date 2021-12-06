@@ -22,10 +22,10 @@ model User {
   role          Role       @relation(fields: [roleId], references: [id])
   roleId        Int
   lastUserAgent String?
-  lastLogin     DateTime   @default(now())
+  lastLogin     DateTime?
+  verifiedAt    DateTime?
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @updatedAt
-  verifiedAt    DateTime?
   cartItems     CartItem[]
   addresses     Address[]
   orders        OrderI[]
