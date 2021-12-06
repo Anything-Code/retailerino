@@ -1,11 +1,46 @@
 import { ruleType, or } from 'nexus-shield';
+import { verify } from 'jsonwebtoken';
+import { AuthenticationError } from 'apollo-server-errors';
+import { JWTPayload } from './types';
 
 export const isUserRuleType = ruleType<'Mutation', string>({
-    resolve: (_root, _args, { req }) => req.session.user.role.name === 'customer',
+    async resolve(_root, _args, { req, pc }) {
+        const authToken = req.headers.authorization;
+        if (!authToken) throw AuthenticationError;
+
+        try {
+            const payload: JWTPayload = verify(authToken, process.env.AUTH_SECRET!) as JWTPayload;
+            const user = await pc.user.findUnique({ where: { cuid: payload.user.cuid }, include: { role: true } });
+
+            if (user == null) {
+                throw 'No user exists like that!';
+            }
+
+            return user.role.name === 'customer' ? true : false;
+        } catch (error) {
+            throw AuthenticationError;
+        }
+    },
 });
 
 export const isAdminRuleType = ruleType<'Mutation', string>({
-    resolve: (_root, _args, { req }) => req.session.user.role.name === 'admin',
+    async resolve(_root, _args, { req, pc }) {
+        const authToken = req.headers.authorization;
+        if (!authToken) throw AuthenticationError;
+
+        try {
+            const payload: JWTPayload = verify(authToken, process.env.AUTH_SECRET!) as JWTPayload;
+            const user = await pc.user.findUnique({ where: { cuid: payload.user.cuid }, include: { role: true } });
+
+            if (user == null) {
+                throw 'No user exists like that!';
+            }
+
+            return user.role.name === 'admin' ? true : false;
+        } catch (error) {
+            throw AuthenticationError;
+        }
+    },
 });
 
 export const isAuthenticatedRuleType = or(isUserRuleType, isAdminRuleType);

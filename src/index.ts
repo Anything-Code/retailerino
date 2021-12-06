@@ -1,39 +1,14 @@
-// @ts-ignore
-import connectSqlite3 from 'connect-sqlite3';
-import express from 'express';
-import session from 'express-session';
-import { ApolloServer } from 'apollo-server-express';
-import { schema } from './schema';
 import dotenv from 'dotenv';
+import express from 'express';
+import { schema } from './schema';
 import { createContext } from './context';
 import expressUseragent from 'express-useragent';
+import { ApolloServer } from 'apollo-server-express';
 
 dotenv.config();
 
-// I like to use redis for this: https://github.com/tj/connect-redis
-const SQLiteStore = connectSqlite3(session);
-
 const app = express();
-
 app.use(expressUseragent.express());
-app.use(
-    session({
-        store: new SQLiteStore({
-            db: './prisma/db.db',
-            concurrentDB: true,
-        }),
-        name: 'qid',
-        secret: process.env.SESSION_SECRET || 'secret',
-        resave: false,
-        saveUninitialized: false,
-        cookie: {
-            sameSite: 'lax',
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            maxAge: 1000 * 60 * 60 * 24 * 7 * 365, // 7 years
-        },
-    })
-);
 
 const apolloServer = new ApolloServer({
     schema,
