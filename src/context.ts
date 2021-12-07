@@ -11,9 +11,11 @@ export const pc = new PrismaClient({
     ],
 });
 
-pc.$on('query', async (e) => {
-    console.log(`${e.query} ${e.params}`);
-});
+if (process.env.NODE_ENV === 'local') {
+    pc.$on('query', async (e) => {
+        console.log(`${e.query} ${e.params}`);
+    });
+}
 
 export interface Context {
     req: express.Request;
