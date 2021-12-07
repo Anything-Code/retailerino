@@ -311,7 +311,7 @@ export const orderMutationType = extendType({
                 user: nonNull(UserInput),
                 address: nonNull(AddressInput),
                 orderItems: list('Int'),
-                deliveryServiceProvicerId: nonNull('DateTime'),
+                deliveryServiceProvicerId: nonNull('Int'),
             },
             async resolve(_parent, { user, address, orderItems, deliveryServiceProvicerId }: any, { pc }) {
                 const newOrderItems = orderItems.map(async (id: number) => ({
@@ -349,7 +349,7 @@ export const orderMutationType = extendType({
             args: {
                 address: nonNull(AddressInput),
                 orderItems: list('Int'),
-                deliveryServiceProvicerId: nonNull('DateTime'),
+                deliveryServiceProvicerId: nonNull('Int'),
             },
             shield: isUserRuleType,
             async resolve(_parent, { address, orderItems, deliveryServiceProvicerId }: any, { req, pc }) {
