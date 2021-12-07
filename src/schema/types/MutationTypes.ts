@@ -240,7 +240,7 @@ export const inventoryItemMutationType = extendType({
             type: 'InventoryItem',
             shield: isAdminRuleType,
             args: {
-                uBarcode: nonNull('String'),
+                uBarcode: nonNull('Int'),
                 note: nonNull('String'),
                 inventoryGroupId: nonNull('Int'),
                 arrivedAt: nonNull('DateTime'),
@@ -252,7 +252,7 @@ export const inventoryItemMutationType = extendType({
             type: 'InventoryItem',
             shield: isAdminRuleType,
             args: {
-                uBarcode: nullable('String'),
+                uBarcode: nullable('Int'),
                 note: nullable('String'),
                 inventoryGroupId: nullable('Int'),
                 arrivedAt: nullable('DateTime'),
@@ -314,7 +314,9 @@ export const orderMutationType = extendType({
                 deliveryServiceProvicerId: nonNull('Int'),
             },
             async resolve(_parent, { user, address, orderItems, deliveryServiceProvicerId }: any, { pc }) {
-                const newOrderItems = orderItems.map(async (id: number) => ({ inventoryGroup: { connect: { id } } }));
+                const newOrderItems = orderItems.map(async (id: number) => ({
+                    inventoryGroup: { connect: { id } },
+                }));
                 const mbyAddress = {
                     city: address.city,
                     country: address.country,
@@ -337,7 +339,13 @@ export const orderMutationType = extendType({
                                 addresses: { create: mbyAddress },
                             },
                         },
-                        orderItems: { create: newOrderItems },
+                        orderItems: {
+                            create: [
+                                {
+                                    inventoryGroup: { connect: { id: orderItems[0] } },
+                                },
+                            ],
+                        },
                     },
                 });
             },
@@ -371,7 +379,13 @@ export const orderMutationType = extendType({
                         user: {
                             connect: { cuid: user.cuid },
                         },
-                        orderItems: { create: newOrderItems },
+                        orderItems: {
+                            create: [
+                                {
+                                    inventoryGroup: { connect: { id: orderItems[0] } },
+                                },
+                            ],
+                        },
                     },
                 });
             },
