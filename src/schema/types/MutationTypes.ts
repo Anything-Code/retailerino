@@ -326,7 +326,7 @@ export const orderMutationType = extendType({
                 return await pc.orderI.create({
                     data: {
                         deliveryServiceProvicer: { connect: { id: deliveryServiceProvicerId } },
-                        address: { connectOrCreate: { where: { id: address.id }, create: mbyAddress } },
+                        address: { create: mbyAddress },
                         confirmed: false,
                         user: {
                             create: {
@@ -336,7 +336,7 @@ export const orderMutationType = extendType({
                                 password: user.password,
                                 phoneNumber: user.phoneNumber,
                                 role: { connect: { id: 2 } },
-                                addresses: { connectOrCreate: { where: { id: address.id }, create: mbyAddress } },
+                                addresses: { create: mbyAddress },
                             },
                         },
                         orderItems: { create: newOrderItems },
@@ -370,7 +370,7 @@ export const orderMutationType = extendType({
                 return await pc.orderI.create({
                     data: {
                         deliveryServiceProvicer: { connect: { id: deliveryServiceProvicerId } },
-                        address: { connectOrCreate: { where: { id: address.id }, create: mbyAddress } },
+                        address: { create: mbyAddress },
                         confirmed: false,
                         user: {
                             connect: { cuid: user.cuid },
