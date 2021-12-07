@@ -2,7 +2,18 @@ import { PrismaClient } from '@prisma/client';
 import { ExpressContext } from 'apollo-server-express';
 import express from 'express';
 
-export const pc = new PrismaClient();
+export const pc = new PrismaClient({
+    log: [
+        {
+            emit: 'event',
+            level: 'query',
+        },
+    ],
+});
+
+pc.$on('query', async (e) => {
+    console.log(`${e.query} ${e.params}`);
+});
 
 export interface Context {
     req: express.Request;
