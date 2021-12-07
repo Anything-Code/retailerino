@@ -314,9 +314,7 @@ export const orderMutationType = extendType({
                 deliveryServiceProvicerId: nonNull('Int'),
             },
             async resolve(_parent, { user, address, orderItems, deliveryServiceProvicerId }: any, { pc }) {
-                const newOrderItems = orderItems.map(async (id: number) => ({
-                    inventoryGroupId: id,
-                }));
+                const newOrderItems = orderItems.map(async (id: number) => ({ inventoryGroup: { connect: { id } } }));
                 const mbyAddress = {
                     city: address.city,
                     country: address.country,
