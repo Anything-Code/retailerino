@@ -159,7 +159,7 @@ async function addressGenerator(userCuid: string) {
 async function orderGenerator(userCuid: string) {
     const orderIdl = await pc.orderI.create({
         data: {
-            cofirmed: true,
+            confirmed: true,
             userUId: userCuid,
             addressId: 2, // getAAdressId(),
             deliveryServiceProvicerId: getDeliveryServiceProvicerId(),
