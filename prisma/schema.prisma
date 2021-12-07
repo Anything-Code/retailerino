@@ -121,8 +121,8 @@ model Address {
   city    String
   zip     String
   country String
-  user    User     @relation(fields: [userUId], references: [cuid])
-  userUId String
+  user    User?     @relation(fields: [userUId], references: [cuid])
+  userUId String?
   orders  OrderI[]
 }
 
@@ -135,7 +135,7 @@ model DeliveryServiceProvider {
 
 model OrderI {
   id                        Int                     @id @default(autoincrement())
-  cofirmed                  Boolean
+  confirmed                  Boolean
   user                      User                    @relation(fields: [userUId], references: [cuid])
   userUId                   String
   address                   Address                 @relation(fields: [addressId], references: [id])

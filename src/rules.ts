@@ -40,7 +40,6 @@ export const isAdminRuleType = ruleType<'Mutation', string>({
             if (user == null) {
                 throw 'No user exists like that!';
             }
-
             return user.role.name === 'admin' ? true : false;
         } catch (error) {
             throw AuthenticationError;
