@@ -358,9 +358,7 @@ export const orderMutationType = extendType({
                 const user = await pc.user.findUnique({ where: { cuid: payload.user.cuid } });
                 if (user == null) throw 'No user exists like that.';
 
-                const newOrderItems = orderItems.map(async (id: number) => ({
-                    inventoryGroupId: id,
-                }));
+                const newOrderItems = orderItems.map(async (id: number) => ({ inventoryGroup: { connect: { id } } }));
                 const mbyAddress = {
                     city: address.city,
                     country: address.country,
