@@ -4,6 +4,7 @@ import { salt, withoutBearer } from '../../util';
 import bcrypt from 'bcrypt';
 import { isAdminRuleType, isUserRuleType } from '../../rules';
 import { decode, JwtPayload } from 'jsonwebtoken';
+import { Context } from '../../context';
 
 export const userMutationType = extendType({
     type: 'Mutation',
@@ -419,20 +420,163 @@ export const orderMutationType = extendType({
     },
 });
 
-// export const orderIQueryType = extendType(allMutations(OrderI, pc.orderI, 'id'));
-// export const reviewQueryType = extendType(allMutations(Review, pc.review, 'id'));
-// export const inventoryGroupQueryType = extendType(allMutations(InventoryGroup, pc.inventoryGroup, 'id'));
-// export const inventoryItemQueryType = extendType(allMutations(InventoryItem, pc.inventoryItem, 'id'));
+export const imageMutationType = extendType({
+    type: 'Mutation',
+    definition(t) {
+        t.field('createImage', {
+            type: 'Image',
+            shield: isAdminRuleType,
+            args: {
+                url: nonNull('String'),
+            },
+            resolve: async (_parent, { url }: any, { pc }) => await pc.image.create({ data: { url } }),
+        });
+        t.field('updateImage', {
+            type: 'Image',
+            shield: isAdminRuleType,
+            args: {
+                id: nonNull('Int'),
+                url: nonNull('String'),
+            },
+            resolve: async (_parent, { id, url }: any, { pc }) =>
+                await pc.image.update({
+                    where: { id },
+                    data: { url },
+                }),
+        });
+        t.field('deleteImage', {
+            type: 'Image',
+            shield: isAdminRuleType,
+            args: { id: nonNull('Int') },
+            resolve: async (_parent, { id }: any, { pc }) => await pc.image.delete({ where: { id } }),
+        });
+    },
+});
+
+export const reviewMutationType = extendType({
+    type: 'Mutation',
+    definition(t) {
+        t.field('createReview', {
+            type: 'Review',
+            shield: isUserRuleType,
+            args: {
+                inventoryGroupId: nonNull('Int'),
+                description: nonNull('String'),
+                rating: nonNull('Int'),
+            },
+            async resolve(_parent, { inventoryGroupId, description, rating }: any, { pc, req }) {
+                const authToken = withoutBearer(req.headers.authorization!);
+                const payload: JwtPayload = decode(authToken!) as JwtPayload;
+                const user = await pc.user.findUnique({ where: { cuid: payload.user.cuid } });
+                if (user == null) throw 'No user exists like that.';
+
+                return await pc.review.create({
+                    data: {
+                        description,
+                        rating,
+                        inventoryGroup: { connect: { id: inventoryGroupId } },
+                        user: { connect: { cuid: user.cuid } },
+                    },
+                });
+            },
+        });
+        t.field('updateReview', {
+            type: 'Review',
+            shield: isUserRuleType,
+            args: {
+                id: nonNull('Int'),
+                description: nullable('String'),
+                rating: nullable('Int'),
+            },
+            async resolve(_parent, { id, description, rating }: any, { pc, req }) {
+                const review = await pc.review.findUnique({ where: { id } });
+                if (review == null) throw 'There is no review with that id';
+
+                return await pc.review.update({
+                    where: { id },
+                    data: {
+                        description: description ?? review.description,
+                        rating: rating ?? review.rating,
+                    },
+                });
+            },
+        });
+        t.field('deleteReview', {
+            type: 'Review',
+            shield: isUserRuleType,
+            args: { id: nonNull('Int') },
+            resolve: async (_parent, { id }: any, { pc }) => await pc.review.delete({ where: { id } }),
+        });
+    },
+});
+
+export const categoryMutationType = extendType({
+    type: 'Mutation',
+    definition(t) {
+        t.field('createCategory', {
+            type: 'Category',
+            shield: isAdminRuleType,
+            args: {
+                name: nonNull('String'),
+            },
+            resolve: async (_parent, { name }: any, { pc }) => await pc.category.create({ data: { name } }),
+        });
+        t.field('updateCategory', {
+            type: 'Category',
+            shield: isAdminRuleType,
+            args: {
+                id: nonNull('Int'),
+                name: nonNull('String'),
+            },
+            resolve: async (_parent, { id, name }: any, { pc, req }) =>
+                await pc.category.update({ where: { id }, data: { name } }),
+        });
+        t.field('deleteCategory', {
+            type: 'Category',
+            shield: isAdminRuleType,
+            args: { id: nonNull('Int') },
+            resolve: async (_parent, { id }: any, { pc }) => await pc.category.delete({ where: { id } }),
+        });
+    },
+});
+
+export const deliveryServiceProviderMutationType = extendType({
+    type: 'Mutation',
+    definition(t) {
+        t.field('createDeliveryServiceProvider', {
+            type: 'DeliveryServiceProvider',
+            shield: isAdminRuleType,
+            args: {
+                name: nonNull('String'),
+                pickupTime: nonNull('DateTime'),
+            },
+            resolve: async (_parent, { name, pickupTime }: any, { pc }) =>
+                await pc.deliveryServiceProvider.create({ data: { name, pickupTime } }),
+        });
+        t.field('updateDeliveryServiceProvider', {
+            type: 'DeliveryServiceProvider',
+            shield: isAdminRuleType,
+            args: {
+                id: nonNull('Int'),
+                name: nonNull('String'),
+                pickupTime: nonNull('DateTime'),
+            },
+            resolve: async (_parent, { id, name, pickupTime }: any, { pc }) =>
+                await pc.deliveryServiceProvider.update({ where: { id }, data: { name, pickupTime } }),
+        });
+        t.field('deleteDeliveryServiceProvider', {
+            type: 'DeliveryServiceProvider',
+            shield: isAdminRuleType,
+            args: { id: nonNull('Int') },
+            resolve: async (_parent, { id }: any, { pc }) => await pc.deliveryServiceProvider.delete({ where: { id } }),
+        });
+    },
+});
+
 // export const inventoryGroupRelationshipQueryType = extendType(
 //     allMutations(InventoryGroupRelationship, pc.inventoryGroupRelationship, 'id')
 // );
 // export const inventoryGroupImageQueryType = extendType(allMutations(InventoryGroupImage, pc.inventoryGroupImage, 'id'));
-// export const deliveryServiceProviderQueryType = extendType(
-//     allMutations(DeliveryServiceProvider, pc.deliveryServiceProvider, 'id')
-// );
 // export const inventoryGroupCategoryQueryType = extendType(
 //     allMutations(InventoryGroupCategory, pc.inventoryGroupCategory, 'id')
 // );
-// export const imageQueryType = extendType(allMutations(Image, pc.image, 'id'));
-// export const categoryQueryType = extendType(allMutations(Category, pc.category, 'id'));
-// export const orderItemQueryType = extendType(allMutations(OrderItem, pc.orderItem, 'id'));
