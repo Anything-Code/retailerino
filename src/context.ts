@@ -11,7 +11,7 @@ export const pc = new PrismaClient({
     ],
 });
 
-if (process.env.NODE_ENV === 'local') {
+if (process.env.NODE_ENV !== 'production') {
     pc.$on('query', async (e) => {
         console.log(`${e.query} ${e.params}`);
     });

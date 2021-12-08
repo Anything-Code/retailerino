@@ -18,11 +18,19 @@ import {
 } from 'nexus-prisma';
 import { extendType, NexusNonNullableTypes, ObjectDefinitionBlock } from 'nexus/dist/core';
 import { Context, pc } from '../../context';
+import { isAdminRuleType } from '../../rules';
 
 const lcFirstChar = (s: string) => s.charAt(0).toLowerCase() + s.slice(1);
 
-const allQueries = (model: any, client: any, pk: string = 'id', pkType: NexusNonNullableTypes = 'Int'): any => ({
+const allQueries = (
+    model: any,
+    client: any,
+    pk: string = 'id',
+    pkType: NexusNonNullableTypes = 'Int',
+    shield?: any
+): any => ({
     type: 'Query',
+    shield,
     definition(t: ObjectDefinitionBlock<'Query'>) {
         t.list.field(lcFirstChar(model.$name) + 's', {
             type: model.$name,
@@ -38,24 +46,29 @@ const allQueries = (model: any, client: any, pk: string = 'id', pkType: NexusNon
     },
 });
 
-export const userQueryType = extendType(allQueries(User, pc.user, 'cuid', 'String'));
-export const roleQueryType = extendType(allQueries(Role, pc.role));
-export const addressQueryType = extendType(allQueries(Address, pc.address));
-export const cartItemQueryType = extendType(allQueries(CartItem, pc.cartItem));
-export const orderIQueryType = extendType(allQueries(OrderI, pc.orderI));
-export const reviewQueryType = extendType(allQueries(Review, pc.review));
 export const inventoryGroupQueryType = extendType(allQueries(InventoryGroup, pc.inventoryGroup));
-export const inventoryItemQueryType = extendType(allQueries(InventoryItem, pc.inventoryItem));
-export const inventoryGroupRelationshipQueryType = extendType(
-    allQueries(InventoryGroupRelationship, pc.inventoryGroupRelationship)
+
+export const userQueryType = extendType(allQueries(User, pc.user, 'cuid', 'String', isAdminRuleType));
+export const roleQueryType = extendType(allQueries(Role, pc.role, 'id', 'Int', isAdminRuleType));
+export const addressQueryType = extendType(allQueries(Address, pc.address, 'id', 'Int', isAdminRuleType));
+export const cartItemQueryType = extendType(allQueries(CartItem, pc.cartItem, 'id', 'Int', isAdminRuleType));
+export const orderIQueryType = extendType(allQueries(OrderI, pc.orderI, 'id', 'Int', isAdminRuleType));
+export const reviewQueryType = extendType(allQueries(Review, pc.review, 'id', 'Int', isAdminRuleType));
+export const inventoryItemQueryType = extendType(
+    allQueries(InventoryItem, pc.inventoryItem, 'id', 'Int', isAdminRuleType)
 );
-export const inventoryGroupImageQueryType = extendType(allQueries(InventoryGroupImage, pc.inventoryGroupImage));
+export const inventoryGroupRelationshipQueryType = extendType(
+    allQueries(InventoryGroupRelationship, pc.inventoryGroupRelationship, 'id', 'Int', isAdminRuleType)
+);
+export const inventoryGroupImageQueryType = extendType(
+    allQueries(InventoryGroupImage, pc.inventoryGroupImage, 'id', 'Int', isAdminRuleType)
+);
 export const deliveryServiceProviderQueryType = extendType(
-    allQueries(DeliveryServiceProvider, pc.deliveryServiceProvider)
+    allQueries(DeliveryServiceProvider, pc.deliveryServiceProvider, 'id', 'Int', isAdminRuleType)
 );
 export const inventoryGroupCategoryQueryType = extendType(
-    allQueries(InventoryGroupCategory, pc.inventoryGroupCategory)
+    allQueries(InventoryGroupCategory, pc.inventoryGroupCategory, 'id', 'Int', isAdminRuleType)
 );
-export const imageQueryType = extendType(allQueries(Image, pc.image));
-export const categoryQueryType = extendType(allQueries(Category, pc.category));
-export const orderItemQueryType = extendType(allQueries(OrderItem, pc.orderItem));
+export const imageQueryType = extendType(allQueries(Image, pc.image, 'id', 'Int', isAdminRuleType));
+export const categoryQueryType = extendType(allQueries(Category, pc.category, 'id', 'Int', isAdminRuleType));
+export const orderItemQueryType = extendType(allQueries(OrderItem, pc.orderItem, 'id', 'Int', isAdminRuleType));
