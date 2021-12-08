@@ -30,16 +30,17 @@ const allQueries = (
     shield?: any
 ): any => ({
     type: 'Query',
-    shield,
     definition(t: ObjectDefinitionBlock<'Query'>) {
         t.list.field(lcFirstChar(model.$name) + 's', {
             type: model.$name,
+            shield,
             async resolve(_parent, _args, _ctx: Context) {
                 return await client.findMany();
             },
         });
         t.field(lcFirstChar(model.$name), {
             type: model.$name,
+            shield,
             args: { [pk]: nonNull(pkType) },
             resolve: async (_parent, args, _ctx: Context) => await client.findFirst({ where: { [pk]: args[pk] } }),
         });
